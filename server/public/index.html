@@ -4,6 +4,7 @@
 <head>
     <title>Schiffe versenken</title>
 
+    <!-- Meta information -->
     <meta name="description" content="Schiffe versenken Zumwalt"/>
     <meta name="author" content="Marc Mehrer, Max Granzow, Joshua Joost"/>
     <meta name="keywords" content="Schiffe versenken, Hochschule-Mannheim, WEB, WS2017/18"/>
@@ -17,23 +18,8 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<!-- CSS -->
-	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-  
-	<link rel="stylesheet" type="text/css" href="css/main.css">
-    <link rel="stylesheet" type="text/css" href="css/highscores.css">
-
-	<!-- JavaScript -->
-	<script src="bootstrap/js/jquery-3.2.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-
-    <script src="js/config.js"></script>  
-	<script src="js/ships.js"></script>
-    <script src="js/gamefield.js"></script>
-    <script src="js/highscore.js"></script>
-    <script src="js/uiManager.js"></script>
-    <script src="js/main.js"></script>
+	<!-- JavaScript and CSS bundle -->
+    <script src="dist/bundle.js"></script>
 </head>
 
 <body>
@@ -77,7 +63,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" onclick="savePlayer();">Spieler speichern</button>
+                            <button id="savePlayerBtn" type="button" class="btn btn-default">Spieler speichern</button>
                         </div>
                     </div>
                 </div>

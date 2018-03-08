@@ -1,4 +1,4 @@
-const ships = {
+export const ships = {
 
 	availableShips: [
 		{

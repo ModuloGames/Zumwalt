@@ -1,4 +1,13 @@
-/* global $, Gamefield, Highscore, UIManager, ships, io */
+import 'jquery';
+//import 'bootstrap';
+//import 'bootstrap/dist/css/bootstrap.min.css';
+import '../css/main.css';
+import '../css/highscores.css';
+import IO from 'socket.io-client';
+import {Gamefield} from './gamefield';
+import {Highscore} from './highscore';
+import {UIManager} from './uiManager';
+import {ships} from './ships';
 
 let myShips = new Gamefield("myGameFieldBody");
 let otherShips = new Gamefield("otherGameFieldBody");
@@ -25,7 +34,7 @@ $(document).ready(function() {
 	UIManager.inititializeShips(otherShips.id);
 	UIManager.shipSetup(ships.availableShips, "myShipsToSetUp")
 
-	let socket = io();
+	let socket = IO();
 
 	$("#playerInputModal").modal("show");
 
@@ -85,6 +94,8 @@ $(document).ready(function() {
 
 
 	// UI event handlers
+	$("#savePlayerBtn").on("click", savePlayer);
+
 	$("#setUpShipsRandomly").on("click", (event) => {
 		myShips.setUpShipsRandomly();
 		UIManager.showShips(myShips.board, myShips.id);

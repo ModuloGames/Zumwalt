@@ -1,3 +1,6 @@
+# custom
+server/public/dist
+
 # Logs
 logs
 *.log

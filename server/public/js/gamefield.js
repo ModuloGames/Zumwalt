@@ -1,6 +1,7 @@
-/* global ships, debug */
+import {ships} from './ships';
+import {debug} from './config';
 
-class Gamefield{
+export class Gamefield{
 	constructor(id){
 		this._board = this.initializeBoard(); 
 		this._id = id;   

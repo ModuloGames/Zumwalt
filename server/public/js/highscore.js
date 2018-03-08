@@ -1,6 +1,7 @@
-/* global $, UIManager, apiURL */
+import {UIManager} from './uiManager';
+import {apiURL} from './config';
 
-class Highscore {
+export class Highscore {
 	get shownHighscores() {
 		return 5;
 	}

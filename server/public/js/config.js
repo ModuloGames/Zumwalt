@@ -1,3 +1,4 @@
-const debug = false;
+// Client configuration
 
-const apiURL = `${location.origin}/api/v1`;
+export const debug = false;
+export const apiURL = `${location.origin}/api/v1`;
