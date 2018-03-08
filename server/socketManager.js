@@ -1,133 +1,162 @@
 /* eslint no-console: "off" */
 
-const MISS = 0, HIT = 1, SANK = 2;
-const resultNames = ["miss", "hit", "destroyed"];
+const Player = require("./player");
 
-let ships = [];
-let players = [];
-let activePlayer = [];
-let shots = [];
+let waitingPlayer;
 
 // Initialize socket connections
 function newConnection(socket) {
 	console.log('A player connected.');
 
-	let i, enemy;
+	let player = new Player(socket);
+
+	socket.on('name', (name) => {
+		player.name = name;
+		console.log(`Player ${name} joined.`);
+	});
 
 	socket.on('ships', (shipData) => {
-		let validBoard = true;
-		// Check shipData's format
-		if( (shipData === undefined)
-		|| (!shipData.hasOwnProperty("ships"))
-		|| (!(shipData.ships instanceof Array))
-		|| (!shipData.ships.length === 10)) {
-			validBoard = false;
-		}
-
-		if(!isBoardValid(shipData.ships)) {
-			validBoard = false;
-		}
-
-		if(!validBoard) {
-			socket.emit('message', 'Invalid game board.');
-			return;
-		}
-
-		players.push(socket);
-
-		i = players.length - 1;
-		enemy = (i % 2) === 0 ? i + 1 : i - 1;
-
-		
-		shots[i] = [];
-
-		console.log("A player is ready.");
-
-		ships[i] = shipData.ships;
-
-		if(ships[enemy] != undefined) {
-			// Starten
-			let rand = (Math.floor(Math.random() * 2)) ? true : false; // Choose random start player
-			players[i].emit('beginner', rand);
-			players[enemy].emit('beginner', !rand);
-
-			activePlayer[Math.trunc(i / 2)] = rand ? (i % 2) : (enemy % 2);
-
-			console.log("A game started.");
+		try {
+			handleShipData(player, shipData);
+		} catch (error) {
+			player.emit('message', error.msg);
 		}
 	});
 
 	socket.on('shot', (turn) => {
-		// checks if current player is at the turn
-		// checks if the turn fits the format
-		if(shots[i] === undefined
-		|| activePlayer[Math.trunc(i / 2)] !== (i % 2)
-		|| (turn === undefined)
-		|| (!turn.hasOwnProperty('coordinates'))
-		|| (!(turn.coordinates instanceof Array))
-		|| (!turn.coordinates.length === 2)
-		|| (turn.coordinates[0] < 0) || (turn.coordinates[0] >= 10)
-		|| (turn.coordinates[1] < 0) || (turn.coordinates[1] >= 10)
-		|| (shots[i].includes(turn.coordinates))) {
-			socket.emit('message', 'Invalid game turn.');
-			return;
-		}
-
-		let turnData = turn.coordinates;
-		shots[i].push(turnData);
-
-		let result = MISS;
-		for(let j = 0; j < ships[enemy].length; j++) {
-			let ship = ships[enemy][j];
-
-			for(let k = 0; k < ship.length; k++) {
-				let coord = ship[k];
-				if(coord[0] === turnData[0] && coord[1] === turnData[1]) {
-					// Remve coordinate
-					ships[enemy][j] = removeIndex(ship, k);
-					result = HIT;
-				}
-			}
-
-			if(ships[enemy][j].length === 0) {
-				// Remove sunken ship
-				ships[enemy] = removeIndex(ships[enemy], j);
-				result = SANK;
-			}
-		}
-
-		socket.emit(resultNames[result], turn);
-		players[enemy].emit(resultNames[result], turn);
-
-		if(result === MISS) {
-			activePlayer[Math.trunc(i / 2)] = (activePlayer[Math.trunc(i / 2)] + 1) % 2;
-		}
-
-		if(ships[enemy].length == 0) {
-			socket.emit('gameFinished', true);
-			players[enemy].emit('gameFinished', false);
-
-			activePlayer[Math.trunc(i / 2)] = undefined;
-
-			console.log("A game ended.");
+		try {
+			handleShotData(player, turn);
+		} catch (error) {
+			player.emit('message', error.msg);
 		}
 	});
 
 	socket.on('disconnect', () => {
-		if(!players[enemy]){
-			players[enemy]=players[i];
+		try {
+			handleDisconnect(player);
+		} catch (error) {
+			player.emit('message', error.msg);
 		}
-		if(players[enemy]) {
-			ships[i] = undefined;
-			players[enemy].emit('end', 'Enemy disconnected.');
-		}
-
-		activePlayer[Math.trunc(i / 2)] = undefined;
-
-		console.log("A player disconnected.");
-	})
+	});
 }
 
+function handleShipData(player, shipData) {
+	// Check shipData's format
+	if( (shipData === undefined)
+	|| (!shipData.hasOwnProperty("ships"))
+	|| (!(shipData.ships instanceof Array))
+	|| (!shipData.ships.length === 10)
+	|| !isBoardValid(shipData.ships)) {
+		throw { msg: 'Invalid game board.' };
+	}
+
+	// Create new player
+	player.ships = shipData.ships;
+
+	if(waitingPlayer !== undefined) {
+		// Pair players
+		let enemy = waitingPlayer;
+		waitingPlayer = undefined;
+		enemy.enemy = player;
+		player.enemy = enemy;
+
+		// Exchange names
+		player.emit('enemy_name', enemy.name);
+		enemy.emit('enemy_name', player.name);
+
+		// Start game
+		let rand = (Math.floor(Math.random() * 2)) ? true : false; // Choose random start player
+		player.beginGame(rand);
+		enemy.beginGame(!rand);
+
+		console.log("A game started.");
+	}
+	else {
+		waitingPlayer = player;
+		player.wait();
+		console.log("A player is ready.");
+	}
+}
+
+function handleShotData(player, turn) {
+	// checks if current player is at the turn
+	// checks if the turn fits the format
+	if(player.shots === undefined
+	|| !player.active
+	|| (turn === undefined)
+	|| (!turn.hasOwnProperty('coordinates'))
+	|| (!(turn.coordinates instanceof Array))
+	|| (!turn.coordinates.length === 2)
+	|| (turn.coordinates[0] < 0) || (turn.coordinates[0] >= 10)
+	|| (turn.coordinates[1] < 0) || (turn.coordinates[1] >= 10)
+	|| (player.shots.includes(turn.coordinates))) {
+		throw { msg: "Invalid game turn." };
+	}
+	
+	let turnData = turn.coordinates;
+	player.addShot(turnData);
+	
+	let enemy = player.enemy;
+
+	const MISS = 0, HIT = 1, SANK = 2;
+	const resultNames = ["miss", "hit", "destroyed"];
+	
+	let result = MISS;
+	for(let j = 0; j < enemy.ships.length; j++) {
+		let ship = enemy.ships[j];
+	
+		for(let k = 0; k < ship.length; k++) {
+			let coord = ship[k];
+			if(coord[0] === turnData[0] && coord[1] === turnData[1]) {
+				// Remve coordinate
+				enemy.ships[j] = removeIndex(ship, k);
+				result = HIT;
+			}
+		}
+	
+		if(enemy.ships[j].length === 0) {
+			// Remove sunken ship
+			enemy.ships = removeIndex(player.enemy.ships, j);
+			result = SANK;
+		}
+	}
+	
+	player.emit(resultNames[result], turn);
+	enemy.emit(resultNames[result], turn);
+	
+	if(result === MISS) {
+		player.toggleActive();
+		enemy.toggleActive();
+	}
+	
+	if(enemy.ships.length == 0) {
+		player.emit('gameFinished', true);
+		enemy.emit('gameFinished', false);
+	
+		player.active = false;
+		enemy.active = false;
+	
+		console.log("A game ended.");
+	}
+}
+
+function handleDisconnect(player) {
+	if(player.enemy != undefined) {
+		player.enemy.active = false;
+		player.enemy.emit('end', 'Enemy disconnected.');
+
+		console.log('A game was aborted by one player.')
+	}
+
+	player.active = false;
+
+	if(player.waiting) {
+		waitingPlayer = undefined;
+		player.stopWaiting();
+	}
+
+	console.log('A player disconnected.');
+}
 
 function isBoardValid(ships) {
 	if(!(ships instanceof Array)) {

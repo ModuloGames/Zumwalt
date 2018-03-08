@@ -12,7 +12,15 @@ let player1 = "Player1", player2 = "Player2";
 
 // Initializations
 $(document).ready(function() {
+	// Get player name from local storage
+	if (typeof(Storage) !== "undefined") {
+		// Code for localStorage
+		if(localStorage.playerName != undefined) {
+			$('#player1').val(localStorage.playerName);
+		}
+	}
 
+	// UI initializations
 	UIManager.inititializeShips(myShips.id);
 	UIManager.inititializeShips(otherShips.id);
 	UIManager.shipSetup(ships.availableShips, "myShipsToSetUp")
@@ -21,6 +29,7 @@ $(document).ready(function() {
 
 	$("#playerInputModal").modal("show");
 
+	// Websocket initializations
 	socket.on('beginner', (beginner) => {
 		$("#otherArea").hide();
 		isPlayerTurn = beginner;
@@ -28,12 +37,12 @@ $(document).ready(function() {
 
 		if(beginner) {
 			$("#otherGameField").addClass("activeBoard");
-			UIManager.printGameLog( $('#player1').val() + " ist am Zug.");
+			UIManager.printGameLog("\"" + player1 + "\" ist am Zug.");
 
 			$("#turn-otherGameFieldBody").addClass("myTurnBg");
 		}
 		else {
-			UIManager.printGameLog("Auf " +  $('#player2').val() + " warten.");
+			UIManager.printGameLog("Auf \"" +  player2 + "\" warten.");
 
 			$("#turn-otherGameFieldBody").addClass("enemyTurnBg");
 		}
@@ -58,24 +67,10 @@ $(document).ready(function() {
 		}
 	});
 
-	$("#setUpShipsRandomly").on("click", (event) =>{
-		myShips.setUpShipsRandomly();
-		UIManager.showShips(myShips.board, myShips.id);
-
-		$("#sendShips").removeClass("disabled");
-		$("#sendShips").text("Bereit");
-		shipsReady = true;
-
-	});
-
-	$("#sendShips").on('click', (event) => {
-		if(shipsReady){
-			gameInterrupted = true;
-			socket.emit('ships', {ships:myShips.shipCoordinatesForServer});
-			$("#shipSetup").hide();
-			$("#otherGameField").show();
-			UIManager.printGameLog("Gegner wird gesucht...");
-		}
+	socket.on('enemy_name', (name) => {
+		player2 = name;
+		$('#player2').val(player2);
+		$('#player2Name').html(player2);
 	});
 
 	socket.on('message', (msg) => {
@@ -88,7 +83,32 @@ $(document).ready(function() {
 		UIManager.printGameLog(msg);
 	});
 
-	$("#otherGameField .boardField").on('click', (event)=> {
+
+	// UI event handlers
+	$("#setUpShipsRandomly").on("click", (event) => {
+		myShips.setUpShipsRandomly();
+		UIManager.showShips(myShips.board, myShips.id);
+
+		$("#sendShips").removeClass("disabled");
+		$("#sendShips").text("Bereit");
+		shipsReady = true;
+
+	});
+
+	$("#sendShips").on('click', (event) => {
+		if(shipsReady){
+			socket.emit('name', player1);
+
+			gameInterrupted = true;
+			socket.emit('ships', {ships:myShips.shipCoordinatesForServer});
+			$("#shipSetup").hide();
+			$("#otherGameField").show();
+
+			UIManager.printGameLog("Gegner wird gesucht...");
+		}
+	});
+
+	$("#otherGameField .boardField").on('click', (event) => {
 		//gets id from specific clicked field and extracts coordinates in an array
 		let position = event.currentTarget.id.split("-").reverse();
 		position.pop();
@@ -103,66 +123,44 @@ $(document).ready(function() {
 		}
 	});
 
-	socket.on('miss', (position)=> {
+	// Turn result handlers
+	socket.on('miss', (position) => {
 		position = position.coordinates;
-		if (isPlayerTurn){
-			//mark position with white dot on enemy board
-			UIManager.markField(position[0], position[1], "otherGameFieldBody");
-			isPlayerTurn = false;
-			$("#otherGameField").removeClass("activeBoard");
 
-			$("#turn-otherGameFieldBody").removeClass("myTurnBg");
-			$("#turn-otherGameFieldBody").addClass("enemyTurnBg");
-		}
-		else{
-			//mark position with white dot on own board
-			UIManager.markField(position[0], position[1], "myGameFieldBody");
-			isPlayerTurn = true;
-			$("#otherGameField").addClass("activeBoard");
+		UIManager.markField(position[0], position[1], (isPlayerTurn ? "otherGameFieldBody": "myGameFieldBody"));
 
-			$("#turn-otherGameFieldBody").removeClass("enemyTurnBg");
-			$("#turn-otherGameFieldBody").addClass("myTurnBg");
-		}
+		isPlayerTurn = !isPlayerTurn;
+		$("#otherGameField").toggleClass("activeBoard");
 
-		UIManager.printGameLog((isPlayerTurn ?  $('#player2').val(): $('#player1').val()) + " missed: [" + UIManager.alphabet[position[1]] + ", " + (position[0] + 1) + "]");
+		$("#turn-otherGameFieldBody").toggleClass("myTurnBg");
+		$("#turn-otherGameFieldBody").toggleClass("enemyTurnBg");
+
+		UIManager.printGameLog(`"${(isPlayerTurn ?  player2 : player1)}" missed: [${UIManager.alphabet[position[1]]}, ${(position[0] + 1)}]`);
 		gameIsRunning = true;
 	});
 
-	socket.on('hit', (position)=> {
+	socket.on('hit', (position) => {
 		position = position.coordinates;
-		if (isPlayerTurn){
-			//mark position with red dot on enemy board
-			UIManager.setShipField(position[0], position[1], "otherGameFieldBody");
-			UIManager.markField(position[0], position[1], "otherGameFieldBody");
-		}
-		else{
-			//mark position with red dot on own board
-			UIManager.markField(position[0], position[1], "myGameFieldBody");
-		}
 
-		UIManager.printGameLog((isPlayerTurn ?  $('#player1').val(): $('#player2').val()) + " hitted: [" + UIManager.alphabet[position[1]] + ", " + (position[0] + 1) + "]");
+		UIManager.setShipField(position[0], position[1], (isPlayerTurn ? "otherGameFieldBody" : "myGameFieldBody"));
+		UIManager.markField(position[0], position[1], (isPlayerTurn ? "otherGameFieldBody" : "myGameFieldBody"));
+
+		UIManager.printGameLog(`"${(isPlayerTurn ?  player1 : player2)}" hitted: [${UIManager.alphabet[position[1]]}, ${(position[0] + 1)}]`);
 		gameIsRunning = true;
 	});
 
-	socket.on('destroyed', (position)=> {
+	socket.on('destroyed', (position) => {
 		position = position.coordinates;
-		if (isPlayerTurn){
-			//mark ship with dark red dots on enemy board
-			UIManager.setShipField(position[0], position[1], "otherGameFieldBody");
-			UIManager.markField(position[0], position[1], "otherGameFieldBody");
-			UIManager.sinkShip(position[0], position[1], "otherGameFieldBody");
-		}
-		else{
-			//mark ship with dark red dots on own board
-			UIManager.markField(position[0], position[1], "myGameFieldBody");
-			UIManager.sinkShip(position[0], position[1], "myGameFieldBody");
-		}
 
-		UIManager.printGameLog((isPlayerTurn ?  $('#player1').val(): $('#player2').val()) + " destroyed: [" + UIManager.alphabet[position[1]] + ", " + (position[0] + 1) + "]");
+		UIManager.setShipField(position[0], position[1], (isPlayerTurn ? "otherGameFieldBody" : "myGameFieldBody"));
+		UIManager.markField(position[0], position[1], (isPlayerTurn ? "otherGameFieldBody" : "myGameFieldBody"));
+		UIManager.sinkShip(position[0], position[1], (isPlayerTurn ? "otherGameFieldBody" : "myGameFieldBody"));
+
+		UIManager.printGameLog(`"${(isPlayerTurn ?  player1 : player2)}" destroyed: [${UIManager.alphabet[position[1]]}, ${(position[0] + 1)}]`);
 		gameIsRunning = true;
 	});
 
-	socket.on('gameFinished', (winner)=>{
+	socket.on('gameFinished', (winner) => {
 		gameIsRunning = false;
 		if (winner){
 			UIManager.printGameLog("Glückwunsch, du hast gesiegt!");
@@ -186,40 +184,26 @@ $(document).ready(function() {
 
 
 function savePlayer() {
+	let id = '#player1';
 
-	if(playerNamesValid('#player1', '#player2')) {
+	if($(id).val() !== "") {
 		player1 = $('#player1').val();
-		player2 = $('#player2').val()
 		$('#player1Name').html( player1);
-		$('#player2Name').html( player2);
 
 		$('#playerInputModal').modal('hide');
+		$('#openPlayerInputModal').prop('disabled', true);
+
+		// Save player name in local storage
+		if (typeof(Storage) !== "undefined") {
+			// Code for localStorage
+			localStorage.playerName = $('#player1').val();
+		}
 	}
 	else {
-		validatePlayerName('#player1', '#player2');
+		let signClass = 'alert-danger';
+		$(id).removeClass(signClass);
+		if($(id).val() === "") {
+			$(id).addClass(signClass);
+		}
 	}
-}
-
-function validatePlayerName(id, otherId) {
-	let signClass = 'alert-danger';
-
-	$(id).removeClass(signClass);
-	$(otherId).removeClass(signClass);
-
-	if($(id).val() === $(otherId).val()) {
-		$(id).addClass(signClass);
-		$(otherId).addClass(signClass);
-	}
-	if($(id).val() === "") {
-		$(id).addClass(signClass);
-	}
-	if($(otherId).val() === "") {
-		$(otherId).addClass(signClass);
-	}
-}
-
-function playerNamesValid(id, otherId) {
-	return ($(id).val() !== $(otherId).val()
-			&& $(id).val() !== ""
-			&& $(otherId).val() !== "") ;
 }

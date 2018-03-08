@@ -24,10 +24,18 @@ const UIManager = {
 						elem.attr("id", "turn-" + id);
 					}
 					else if(row === 0 && col > 0){
-						elem.text(this.alphabet[col - 1]);
+						let letter = $("<p></p>");
+						letter.text(this.alphabet[col - 1]);
+						letter.css('margin-top', "150%");
+						elem.append(letter);
+						//elem.text(this.alphabet[col - 1]);
 					}
 					else if(col === 0 && row > 0){
-						elem.text(row);
+						let letter = $("<p></p>");
+						letter.text(row);
+						letter.css('margin-top', "150%");
+						elem.append(letter);
+						//elem.text(row);
 					}
 				}
 				else{

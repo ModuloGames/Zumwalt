@@ -11,6 +11,11 @@ const env = require('./config.json');
 const socketManager = require('./socketManager');
 
 
+// Set environment variables
+env.DEBUG = process.env.DEBUG || env.DEBUG;
+env.HOST = process.env.HOST || env.HOST;
+env.PORT = process.env.PORT || env.PORT;
+
 // Socket.io event handlers
 io.on('connection', (socket) => {
 	socketManager(socket);
@@ -36,6 +41,6 @@ app.get("/*", (req, res) => {
 });
 
 // Start Server
-http.listen(env.PORT, env.HOST, function() {
+http.listen(env.PORT, function() {
 	console.log('Server started: http://' + env.HOST + ':' + env.PORT);
 });

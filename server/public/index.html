@@ -55,7 +55,7 @@
             <p class="playerLabel">Spieler 1: <span class="playerName" id="player1Name">-</span></p>
             <p class="playerLabel">Spieler 2: <span class="playerName" id="player2Name">-</span></p>
 
-            <button class="btn btn-primary" data-toggle="modal" data-target="#playerInputModal">Spieler hinzufügen</button>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#playerInputModal" id="openPlayerInputModal">Spieler hinzufügen</button>
 
             <!-- Player name input modal -->
             <div id="playerInputModal" class="modal fade" role="dialog" data-backdrop="static">
@@ -67,11 +67,11 @@
                         <div class="modal-body">
                             <!-- Input name player 1 -->
                             <div class="form-group">
-                                <label for="player1">Spieler 1:</label>
+                                <label for="player1">Name:</label>
                                 <input type="text" class="form-control" id="player1" oninput="validatePlayerName('#player1', '#player2');">
                             </div>
                             <!-- Input name player 2 -->
-                            <div class="form-group">
+                            <div class="form-group" hidden>
                                 <label for="player2">Spieler 2:</label>
                                 <input type="text" class="form-control" id="player2" oninput="validatePlayerName('#player2', '#player1');">
                             </div>
