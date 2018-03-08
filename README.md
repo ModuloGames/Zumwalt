@@ -3,6 +3,7 @@ HS-Mannheim WS2017/18 WEB-Projekt: Schiffeversenken
 
 ### Server starten
 - Konsole öffnen
+- 'npm run build' für development build / 'npm run build:prod' für production build
 - 'npm start' tippen um Server zu starten
 - Server läuft auf localhost:3000
 
