@@ -2,14 +2,10 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-	entry: {
-		index: './server/public/js/main.js',
-		bootstrap: 'bootstrap',
-		bootstrapcss: 'bootstrap/dist/css/bootstrap.min.css'
-	},
+	entry: './server/public/js/main.js',
 	output: {
 		path: path.resolve(__dirname, 'server/public/dist'),
-		filename: '[name].bundle.js',
+		filename: 'bundle.js',
 		publicPath: '/server/public/dist'
 	},
 	module: {
