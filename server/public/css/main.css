@@ -37,6 +37,11 @@ body {
 	color: black;
 }
 
+.retryBtn {
+	font-size: 16pt;
+	color: black;
+}
+
 #scoreLabel {
 	font-size: 30pt;
 	color: red;

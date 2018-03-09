@@ -1,4 +1,4 @@
-/* global $, UIManager, apiURL */
+/* global UIManager, apiURL */
 
 class Highscore {
 	get shownHighscores() {
@@ -20,10 +20,24 @@ class Highscore {
 	}
 	
 	updateHighscores() {
+		let self = this;
 		$.ajax({
 			method: "GET",
 			dataType: "JSON",
-			url: apiURL + "/highscore"
+			url: apiURL + "/highscore",
+			error: function (xhr, ajaxOptions, thrownError) {
+				let container = $("#highscores");
+				container.html($("<span>Einträge konnten nicht geladen werden.</span><hr/>"));
+
+				let btn = $("<button></button>");
+				btn.text("Retry");
+				btn.addClass("btn");
+				btn.addClass("retryBtn");
+				btn.addClass("pull-right");
+				btn.on('click', self.updateHighscores.bind(self));
+
+				container.append(btn);
+			}
 		}).done((msg) => {
 			this.showHighscores(this.getBestHighscores(msg.highscore, this.shownHighscores));
 		});
@@ -52,7 +66,7 @@ class Highscore {
 	showHighscores(highscores) {
 		let container = $("#highscores");
 		container.html("");
-	
+
 		if(highscores.length == 0) {
 			container.append($("<span>Noch keine Einträge.</span><hr/>"));
 		}

@@ -12,9 +12,16 @@ router.get('/', (req, res) => {
 			return;
 		}
 
-		// Return Highscores
-		let json = JSON.parse(data);
-		res.status(200).json(json);
+		try {
+			// Return Highscores
+			let json = JSON.parse(data);
+			res.status(200).json(json);
+		} catch (error) {
+			res.status(500).json({
+				error: "Internal server error."
+			});
+		}
+		
 	});
 });
 

@@ -1,4 +1,4 @@
-/* global $, Gamefield, Highscore, UIManager, ships, io */
+/* global Gamefield, Highscore, UIManager, ships, io */
 
 let myShips = new Gamefield("myGameFieldBody");
 let otherShips = new Gamefield("otherGameFieldBody");
