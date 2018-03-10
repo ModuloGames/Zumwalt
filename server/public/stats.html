@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <title>Schiffe versenken - Statistiken</title>
+
+    <meta name="description" content="Schiffe versenken Zumwalt"/>
+    <meta name="author" content="Marc Mehrer, Max Granzow, Joshua Joost"/>
+    <meta name="keywords" content="Schiffe versenken, Hochschule-Mannheim, WEB, WS2017/18"/>
+    <meta name="date" content="2018-01-14"/>
+    <meta name="language" content="de"/>
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicons/katze.png">
+
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/highscores.css">
+
+	<!-- JavaScript -->
+	<script src="bootstrap/js/jquery-3.2.1.min.js"></script>
+	<script src="bootstrap/js/bootstrap.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	
+	<script src="js/config.js"></script>
+	<script src="js/highscore.js"></script>
+
+    <script src="js/stats.js"></script>
+
+	<style>
+		.widgetArea {
+			border: 2px solid white;
+			padding: 2%;
+			margin: 1%;
+		}
+
+		.widget {
+			padding: 5px;
+		}
+
+		.widget div {
+			border: 1px solid white;
+			padding: 2%;
+		}
+	</style>
+</head>
+
+<body>
+
+<div class="container"> <!-- Main content area -->
+
+    <div class="area info-area" style="margin-bottom: 5%;">
+        <!-- Highscore -->
+        <div>
+            Highscores:
+            <hr>
+            <h1 id="highscores" class="highscoreArea">
+            </h1> 
+		</div>
+	</div>
+
+	<div class="row widgetArea">
+		<h1 class="col-xs-12">Stats:</h1>
+		<div class="widget col-xs-12 col-md-6 col-lg-3">
+			<div>
+				<p>Active User Count</p>
+				<h1 id="activePlayers">-</h1>
+			</div>
+		</div>
+		<div class="widget col-xs-12 col-md-6 col-lg-3">
+			<div>
+				<p>Waiting users</p>
+				<h1><span id="waitingPlayers"></span> <span id="waitingTime"></span></h1>
+			</div>
+		</div>
+		<div class="widget col-xs-12 col-md-6 col-lg-3">
+			<div>
+				<p>Games played</p>
+				<h1 id="gamesPlayed">-</h1>
+			</div>
+		</div>
+		<div class="widget col-xs-12 col-md-6 col-lg-3">
+			<div>
+				<p>Avarage score</p>
+				<h1 id="averageScore">-</h1>
+			</div>
+		</div>
+	</div>
+    
+     <footer>
+         <div class="container" style="position: absolute; bottom: 1%;">
+             <p>&copy; 2018: Max Granzow, Joshua Joost, Marc Mehrer</p>
+         </div>
+     </footer>
+	 <!-- End main content area -->
+</div>
+
+</body>
+</html>

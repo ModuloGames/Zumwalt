@@ -1,6 +1,8 @@
 /* eslint no-console: "off" */
 
 const Player = require("./player");
+const StatsManager = require('./statsManager');
+const statsManager = new StatsManager();
 
 let waitingPlayer;
 
@@ -9,6 +11,8 @@ function newConnection(socket) {
 	console.log('A player connected.');
 
 	let player = new Player(socket);
+	statsManager.addPlayer();
+	let statsNr;
 
 	socket.on('name', (name) => {
 		player.name = name;
@@ -37,6 +41,18 @@ function newConnection(socket) {
 		} catch (error) {
 			player.emit('message', error.msg);
 		}
+
+		if(statsNr !== undefined) {
+			statsManager.removeObserver(statsNr);
+		}
+		else {
+			statsManager.removePlayer();
+		}
+	});
+
+	socket.on('receiveStats', () => {
+		statsManager.removePlayer();
+		statsNr = statsManager.addObserver(socket);
 	});
 }
 
@@ -57,6 +73,7 @@ function handleShipData(player, shipData) {
 		// Pair players
 		let enemy = waitingPlayer;
 		waitingPlayer = undefined;
+		statsManager.playerWaiting = false;
 		enemy.enemy = player;
 		player.enemy = enemy;
 
@@ -74,6 +91,7 @@ function handleShipData(player, shipData) {
 	else {
 		waitingPlayer = player;
 		player.wait();
+		statsManager.playerWaiting = true;
 		console.log("A player is ready.");
 	}
 }
@@ -135,6 +153,8 @@ function handleShotData(player, turn) {
 	
 		player.active = false;
 		enemy.active = false;
+
+		statsManager.addPlayedGame();
 	
 		console.log("A game ended.");
 	}
@@ -153,6 +173,8 @@ function handleDisconnect(player) {
 	if(player.waiting) {
 		waitingPlayer = undefined;
 		player.stopWaiting();
+
+		statsManager.playerWaiting = false;
 	}
 
 	console.log('A player disconnected.');
