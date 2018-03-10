@@ -1,0 +1,14 @@
+.widgetArea {
+	border: 2px solid white;
+	padding: 2%;
+	margin: 1%;
+}
+
+.widget {
+	padding: 5px;
+}
+
+.widget div {
+	border: 1px solid white;
+	padding: 2%;
+}
