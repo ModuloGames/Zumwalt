@@ -20,6 +20,14 @@ $(document).ready(function() {
 	// Websocket initializations
 	socket.emit('receiveStats', null);
 
+	socket.on('disconnect', () => {
+		$('#activePlayers').text('-');
+		$('#gamesPlayed').text('-');
+		$("#averageScore").text('-');
+		$('#waitingPlayers').text('-');
+		$('#waitingTime').text('');
+	});
+
 	socket.on('statsPlayerWaitig', (playersWaiting) => {
 		if(playersWaiting > 0) {
 			$('#waitingPlayers').text('1');
@@ -40,6 +48,7 @@ $(document).ready(function() {
 	socket.on('statsGamesPlayed', (gamesPlayed) => {
 		$('#gamesPlayed').text(gamesPlayed);
 
+		highscoreManager.updateHighscores();
 		updateAvgScore();
 	});
 
