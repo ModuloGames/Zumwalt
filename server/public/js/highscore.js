@@ -74,10 +74,11 @@ class Highscore {
 		for(let i = 0; i < highscores.length; i++) {
 			let row = $('<span/>', {class: 'highscores'});
 			let name = $('<span/>', {class: "col-xs-8"});
-			name.append(highscores[i].name);
+			name.text(highscores[i].name);
 			let score = $('<span/>', {class: "col-xs-4"});
-			score.append(highscores[i].points + " Pt.");
+			score.text(highscores[i].points + " Pt.");
 			let brhr = $('<br/><hr/>');
+			
 			row.append(name);
 			row.append(score);
 			row.append(brhr);

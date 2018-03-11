@@ -28,11 +28,21 @@ $(document).ready(function() {
 		$('#waitingTime').text('');
 	});
 
+	socket.on('reconnect', () => {
+		socket.emit('receiveStats', null);
+	});
+
 	socket.on('statsPlayerWaitig', (playersWaiting) => {
 		if(playersWaiting > 0) {
 			$('#waitingPlayers').text('1');
 			waitingTime = playersWaiting
 			$('#waitingTime').text('(' + (Math.floor((Date.now() - waitingTime) / 1000) + 1) + 's)');
+
+			// Send push notification
+			new Notification('A player is waiting.', {
+				body: `A player is waiting for an enemy. Visit ${location.origin} to play.`,
+				icon: `${location.origin}/favicons/katze.png`
+			});
 		}
 		else {
 			$('#waitingPlayers').text('0');
@@ -53,6 +63,9 @@ $(document).ready(function() {
 	});
 
 	updateAvgScore();
+
+	// Push notifications
+	Notification.requestPermission(() => {});
 });
 
 function updateAvgScore() {

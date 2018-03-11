@@ -70,7 +70,7 @@ $(document).ready(function() {
 	socket.on('enemy_name', (name) => {
 		player2 = name;
 		$('#player2').val(player2);
-		$('#player2Name').html(player2);
+		$('#player2Name').text(player2);
 	});
 
 	socket.on('message', (msg) => {
@@ -188,7 +188,7 @@ function savePlayer() {
 
 	if($(id).val() !== "") {
 		player1 = $('#player1').val();
-		$('#player1Name').html( player1);
+		$('#player1Name').text( player1);
 
 		$('#playerInputModal').modal('hide');
 		$('#openPlayerInputModal').prop('disabled', true);

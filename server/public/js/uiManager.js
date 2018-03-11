@@ -195,7 +195,7 @@ const UIManager = {
 	},
 
 	printGameLog(msg) {
-		let node = $("<p></p>");
+		let node = $("<p />");
 		node.text("- " + msg);
 		$("#messageBox").prepend(node);
 	}
