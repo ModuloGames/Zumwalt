@@ -80,8 +80,8 @@ function updateAvgScore() {
 		let scores = msg.highscore.map((elem) => {
 			return parseInt(elem.points, 10);
 		});
-		$("#averageScore").text(Math.floor(scores.reduce((total, current) => {
+		$("#averageScore").text(130 - (Math.floor(scores.reduce((total, current) => {
 			return total + current;
-		}) / scores.length));
+		}) / scores.length)));
 	});
 }

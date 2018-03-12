@@ -22,16 +22,18 @@ const UIManager = {
 						elem.attr("id", "turn-" + id);
 					}
 					else if(row === 0 && col > 0){
-						let letter = $("<p></p>");
+						let letter = $("<p/>");
 						letter.text(this.alphabet[col - 1]);
-						letter.css('margin-top', "150%");
+						//letter.css('margin-top', "150%");
+						letter.css('transform', 'translateY(35%)');
 						elem.append(letter);
 						//elem.text(this.alphabet[col - 1]);
 					}
 					else if(col === 0 && row > 0){
-						let letter = $("<p></p>");
+						let letter = $("<p/>");
 						letter.text(row);
-						letter.css('margin-top', "150%");
+						//letter.css('margin-top', "150%");
+						letter.css('transform', 'translateY(35%)');
 						elem.append(letter);
 						//elem.text(row);
 					}
@@ -195,8 +197,15 @@ const UIManager = {
 	},
 
 	printGameLog(msg) {
+		$("#gameLogLoader").remove();
+
 		let node = $("<p />");
 		node.text("- " + msg);
 		$("#messageBox").prepend(node);
-	}
+	},
+
+	showWaiting() {
+		let loader = $('<div id="gameLogLoader" class="loader pull-right"></div>');
+		$("#messageBox").prepend(loader);
+	},
 }

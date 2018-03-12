@@ -68,12 +68,7 @@
                             <!-- Input name player 1 -->
                             <div class="form-group">
                                 <label for="player1">Name:</label>
-                                <input type="text" class="form-control" id="player1" oninput="validatePlayerName('#player1', '#player2');">
-                            </div>
-                            <!-- Input name player 2 -->
-                            <div class="form-group" hidden>
-                                <label for="player2">Spieler 2:</label>
-                                <input type="text" class="form-control" id="player2" oninput="validatePlayerName('#player2', '#player1');">
+                                <input type="text" class="form-control" id="player1">
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -124,6 +119,10 @@
         </div>
     </div>
 
+    <div id="alertArea">
+        
+    </div>
+
 
     <!-- Game Boards --> 
     <div id="gameBoard" class="row">
@@ -168,7 +167,7 @@
     <div style="margin-top: 2%;">
         <h2>Spielverlauf: </h2>
         <div id="messageBox" class="messageBox">
-			<!-- messages here -->
+            <!-- messages here -->
             
         </div>
     </div>

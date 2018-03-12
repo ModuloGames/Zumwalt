@@ -1,6 +1,14 @@
 /* global UIManager, apiURL */
 
 class Highscore {
+	constructor() {
+		this._maxPoints = 130;
+	}
+
+	get maxPoints() {
+		return this._maxPoints;
+	}
+
 	get shownHighscores() {
 		return 5;
 	}
@@ -76,7 +84,7 @@ class Highscore {
 			let name = $('<span/>', {class: "col-xs-8"});
 			name.text(highscores[i].name);
 			let score = $('<span/>', {class: "col-xs-4"});
-			score.text(highscores[i].points + " Pt.");
+			score.text((this._maxPoints - highscores[i].points) + " Pt.");
 			let brhr = $('<br/><hr/>');
 			
 			row.append(name);
